@@ -28,6 +28,9 @@ add_executable(Main
         src/graph.h
         src/Edge.cpp
         src/Graph.cpp
+        src/Class.cpp
+        src/Student.h
+        src/Student.cpp
         # add your own header files below - should be automatically added in CLion
         # example (can also separate with newlines):
         # src/AVL.h src/AVL.cpp
@@ -40,7 +43,12 @@ add_executable(Tests
         src/CampusCompass.h
         src/class.h
         src/edge.h
+        src/graph.h
         src/Edge.cpp
+        src/Graph.cpp
+        src/Class.cpp
+        src/Student.h
+        src/Student.cpp
         # add your own header files below - should be automatically added in CLion
         # example (can also separate with newlines):
         # src/AVL.h src/AVL.cpp

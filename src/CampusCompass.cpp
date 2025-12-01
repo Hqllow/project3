@@ -10,7 +10,7 @@
 
 using namespace std;
 
-CampusCompass::CampusCompass() {
+CampusCompass::CampusCompass(): classSet() {
     graph = Graph();
 }
 
@@ -38,8 +38,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
         {
             row.push_back(element);
         }
-
-    Edge toAdd = Edge(stoi(row[0]), stoi(row[1]), row[2], row[3], stoi(row[4]));
+        Edge toAdd = Edge(true, stoi(row[0]), stoi(row[1]), row[2], row[3], stoi(row[4]));
         graph.insert(toAdd);
     }
     edges.close();
