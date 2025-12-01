@@ -1,0 +1,29 @@
+//
+// Created by DaleT on 12/1/2025.
+//
+
+#ifndef EDGE_H
+#define EDGE_H
+#include <string>
+
+class Edge {
+public:
+    Edge::Edge(const int &id1, const int &id2, const std::string &n1, const std::string &n2, const int &t);
+    [[nodiscard]] int getLocation1() const;
+    [[nodiscard]] int getLocation2() const;
+    [[nodiscard]] std::string getName1() const;
+    [[nodiscard]] std::string getName2() const;
+    [[nodiscard]] int getTime() const;
+    void setLocation1(const int &id);
+    void setLocation2(const int &id);
+    void setName1(const std::string &name);
+    void setName2(const std::string &name);
+    void setTime(const int &t);
+private:
+    int locationID_1;
+    int locationID_2;
+    std::string name_1;
+    std::string name_2;
+    int time;
+};
+#endif //EDGE_H
