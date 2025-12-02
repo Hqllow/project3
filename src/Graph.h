@@ -5,7 +5,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 #include <vector>
-#include <Edge.h>
+#include "Edge.h"
 
 class Graph {
 public:
