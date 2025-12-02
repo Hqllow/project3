@@ -1,4 +1,4 @@
-#include "CampusCompass.h"
+#include "src/CampusCompass.h"
 
 #include <string>
 #include <iostream>
@@ -6,8 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include "Edge.h"
-#include "Graph.h"
+#include "src/Edge.h"
+#include "src/Graph.h"
 
 using namespace std;
 

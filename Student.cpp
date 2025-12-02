@@ -1,7 +1,7 @@
 //
 // Created by DaleT on 12/1/2025.
 //
-#include "Student.h"
+#include "src/Student.h"
 
 Student::Student(const std::string &name, const std::string &id, const int &residence) {
     this->name = name;

@@ -3,9 +3,9 @@
 //
 
 #include <string>
-#include "Edge.h"
+#include "src/Edge.h"
 
-    Edge::Edge(const bool &active, const int &id1, const int &id2, const std::string &n1, const std::string &n2, const int &t) {
+Edge::Edge(const bool &active, const int &id1, const int &id2, const std::string &n1, const std::string &n2, const int &t) {
         isActive = active;
         locationID_1 = id1;
         locationID_2 = id2;
