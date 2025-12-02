@@ -216,6 +216,10 @@ bool CampusCompass::ParseCommand(const string &command) {
             Student updatedStudent = *sit;
             studentList.erase(sit);
             if (updatedStudent.removeClass(tempClass)) {
+                if (updatedStudent.getClasses().empty()) {
+                    cout << "successful" << endl;
+                    return true;
+                }
                 studentList.insert(updatedStudent);
                 cout << "successful" << endl;
                 return true;
@@ -371,6 +375,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         graph.checkEdge(fromID, toID);
+        return true;
     }
     if (parts.at(0) == "isConnected") {
 
