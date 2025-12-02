@@ -19,6 +19,14 @@ bool isValidStudentID(const std::string &id) {
     return true;
 }
 
+bool isValidClassCode(const std::string &code) {
+    regex id_pattern("^[A-Z]{3}\\d{4}$");
+    if (!regex_match(code, id_pattern)) {
+        return false;
+    }
+    return true;
+}
+
 CampusCompass::CampusCompass(): classSet() {
     graph = Graph();
 }
@@ -115,16 +123,12 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     }
     if (parts.at(0) == "remove") {
-        const string& studentID = parts[1];
-
-        if (isValidStudentID(studentID)) {
+        if (!isValidStudentID(parts[1])) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
-        int stuID = stoi(studentID);
-
-        Student tempStudent("", stuID, 0);
+        Student tempStudent("", parts[1], 0);
 
         auto it = studentList.find(tempStudent);
         if (it != studentList.end()) {
@@ -137,7 +141,25 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
     }
     if (parts.at(0) == "dropClass") {
+        if (parts.size() < 3 || !isValidStudentID(parts[1]) || !isValidClassCode(parts[2])) {            cout << "unsuccessful" << endl;
+            return false;
+        }
 
+        Student tempStudent("", parts[1], 0);
+        Class tempClass(parts[2], 0, "", "");
+        auto sit = studentList.find(tempStudent);
+        if (sit != studentList.end()) {
+            Student updatedStudent = *sit;
+            studentList.erase(sit);
+            if (updatedStudent.removeClass(tempClass)) {
+                studentList.insert(updatedStudent);
+                cout << "successful" << endl;
+                return true;
+            }
+            studentList.insert(updatedStudent);
+        }
+        cout << "unsuccessful" << endl;
+        return false;
     }
     if (parts.at(0) == "replaceClass") {
 

@@ -38,14 +38,8 @@ void Class::setEndTime(const std::string &endTime) {
 }
 
 bool Class::operator<(const Class &other) const {
-    if (classCode != other.getClassCode()) {
-        return classCode < other.getClassCode();
-    }
-    if (locationID != other.getLocationID()) {
-        return locationID < other.getLocationID();
-    }
-    if (startTime != other.getStartTime()) {
-        return startTime < other.getStartTime();
-    }
-        return endTime < other.getEndTime();
+    return classCode < other.getClassCode();
+}
+bool Class::operator==(const Class &other) const {
+    return classCode == other.getClassCode();
 }

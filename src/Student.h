@@ -12,26 +12,27 @@ class Class;
 
 class Student {
 public:
-    Student(const std::string &name, const int &id, const int &residence);
+    Student(const std::string &name, const std::string &id, const int &residence);
 
     [[nodiscard]] std::string getName() const;
-    [[nodiscard]] int getID() const;
+    [[nodiscard]] std::string getID() const;
     [[nodiscard]] int getResidence() const;
     [[nodiscard]] std::vector<Class> getClasses() const;
 
     void setName(const std::string &name);
-    void setID(const int &id);
+    void setID(const std::string &id);
     void setResidence(const int &residence);
     void setClasses(const std::vector<Class> &classes);
 
-    void removeClass(const Class &c);
+    bool removeClass(const Class &c);
     void addClass(const Class &c);
 
     bool operator<(const Student &other) const;
+    bool operator==(const Student &other) const;
 
 private:
     std::string name;
-    int id;
+    std::string id;
     int residence;
     std::vector<Class> classes;
 };
