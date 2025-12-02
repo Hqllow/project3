@@ -237,7 +237,7 @@ and the `add_executable()` blocks in `CMakeLists.txt` would look like:
 
 ```cmake
 add_executable(Main
-        main.cpp
+        src/main.cpp
         CampusCompass.h CampusCompass.cpp
 )
 

@@ -1,4 +1,4 @@
-#include "src/CampusCompass.h"
+#include "CampusCompass.h"
 
 #include <string>
 #include <iostream>
