@@ -38,8 +38,8 @@
         return time;
     }
 
-    void Edge::setOpen(const bool &active) {
-        isActive = active;
+    void Edge::toggle() {
+        isActive = !isActive;
     }
 
     void Edge::setLocation1(const int &id) {

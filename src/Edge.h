@@ -17,7 +17,7 @@ public:
     [[nodiscard]] std::string getName2() const;
     [[nodiscard]] int getTime() const;
 
-    void setOpen(const bool &active);
+    void toggle();
     void setLocation1(const int &id);
     void setLocation2(const int &id);
     void setName1(const std::string &name);
