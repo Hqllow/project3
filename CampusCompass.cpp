@@ -6,8 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include "src/Edge.h"
-#include "src/Graph.h"
+#include "Edge.h"
+#include "Graph.h"
 
 using namespace std;
 

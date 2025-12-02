@@ -1,7 +1,7 @@
 //
 // Created by DaleT on 12/1/2025.
 //
-#include <src/Class.h>
+#include <Class.h>
 #include <string>
 
 Class::Class(const std::string &cl, const int &location, const std::string &start, const std::string &end) {

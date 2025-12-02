@@ -3,7 +3,7 @@
 //
 
 #include <string>
-#include "src/Edge.h"
+#include "Edge.h"
 
 Edge::Edge(const bool &active, const int &id1, const int &id2, const std::string &n1, const std::string &n2, const int &t) {
         isActive = active;
