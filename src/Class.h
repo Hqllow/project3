@@ -24,6 +24,7 @@ public:
     void setStartTime(const std::string &startTime);
     void setEndTime(const std::string &endTime);
 
+    bool operator<(const Class &other) const;
 private:
     std::string classCode;
     int locationID;

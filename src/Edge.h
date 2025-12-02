@@ -23,6 +23,8 @@ public:
     void setName1(const std::string &name);
     void setName2(const std::string &name);
     void setTime(const int &t);
+
+    bool operator<(const Edge &other) const;
 private:
     bool isActive;
     int locationID_1;

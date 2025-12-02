@@ -36,3 +36,16 @@ void Class::setStartTime(const std::string &startTime) {
 void Class::setEndTime(const std::string &endTime) {
     this->endTime = endTime;
 }
+
+bool Class::operator<(const Class &other) const {
+    if (classCode != other.getClassCode()) {
+        return classCode < other.getClassCode();
+    }
+    if (locationID != other.getLocationID()) {
+        return locationID < other.getLocationID();
+    }
+    if (startTime != other.getStartTime()) {
+        return startTime < other.getStartTime();
+    }
+        return endTime < other.getEndTime();
+}

@@ -27,6 +27,8 @@ public:
     void removeClass(const Class &c);
     void addClass(const Class &c);
 
+    bool operator<(const Student &other) const;
+
 private:
     std::string name;
     int id;

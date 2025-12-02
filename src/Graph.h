@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <Edge.h>
+#include <queue>
 
 class Graph {
 public:
@@ -14,6 +15,6 @@ public:
     void insert(Edge edge);
 
 private:
-    std::vector<Edge> edge_list;
+    std::priority_queue<Edge> edge_list;
 };
 #endif //GRAPH_H

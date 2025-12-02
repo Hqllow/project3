@@ -7,6 +7,7 @@ Student::Student(const std::string &name, const int &id, const int &residence) {
     this->name = name;
     this->id = id;
     this->residence = residence;
+    classes = std::vector<Class>();
 }
 
 [[nodiscard]] std::string Student::getName() const {
@@ -44,4 +45,8 @@ void Student::removeClass(const Class &c) {
 }
 void Student::addClass(const Class &c) {
     this->classes.push_back(c);
+}
+
+bool Student::operator<(const Student &other) const {
+    return this->id < other.id;
 }

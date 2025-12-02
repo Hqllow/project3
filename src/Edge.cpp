@@ -61,3 +61,7 @@
     void Edge::setTime(const int &t) {
         time = t;
     }
+
+    bool Edge::operator<(const Edge &other) const {
+        return time > other.time;
+    }
