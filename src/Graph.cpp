@@ -5,6 +5,8 @@
 #include "Graph.h"
 
 #include <iostream>
+#include <unordered_set>
+#include <queue>
 
 Graph::Graph() {
     edge_list = std::vector<Edge>();
@@ -54,4 +56,42 @@ void Graph::checkEdge(int to, int from) {
     if (!done) {
         std::cout << "DNE" << std::endl;
     }
+}
+
+[[nodiscard]] bool Graph::isConnected(int from, int to) const {
+    if (from == to) {
+        return true;
+    }
+
+    std::queue<int> q;
+    std::unordered_set<int> visited;
+
+    q.push(from);
+    visited.insert(from);
+
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
+
+        if (curr == to) {
+            return true;
+        }
+
+        for (const auto &edge : edge_list) {
+            if (!edge.isOpen()) continue;
+
+            int neighbor = -1;
+            if (edge.getLocation1() == curr) {
+                neighbor = edge.getLocation2();
+            }
+            else if (edge.getLocation2() == curr) {
+                neighbor = edge.getLocation1();
+            }
+            if (neighbor != -1 && !visited.count(neighbor)) {
+                visited.insert(neighbor);
+                q.push(neighbor);
+            }
+        }
+    }
+    return false;
 }

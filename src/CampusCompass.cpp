@@ -378,7 +378,29 @@ bool CampusCompass::ParseCommand(const string &command) {
         return true;
     }
     if (parts.at(0) == "isConnected") {
+        if (parts.size() != 3) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
 
+        int fromID = 0;
+        int toID = 0;
+        try {
+            fromID = stoi(parts.at(1));
+            toID = stoi(parts.at(2));
+        } catch (...) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+
+        if (graph.isConnected(fromID, toID)) {
+            cout << "successful" << endl;
+        }
+        else {
+            cout << "unsuccessful" << endl;
+        }
+
+        return true;
     }
     if (parts.at(0) == "printShortestEdges") {
 

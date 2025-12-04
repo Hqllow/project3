@@ -13,6 +13,7 @@ public:
     void insert(const Edge& edge);
     bool toggleEdge(int to, int from);
     void checkEdge(int to, int from);
+    [[nodiscard]] bool isConnected(int from, int to) const;
 private:
     std::vector<Edge> edge_list;
 };
