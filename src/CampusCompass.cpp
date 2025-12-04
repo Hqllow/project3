@@ -403,7 +403,33 @@ bool CampusCompass::ParseCommand(const string &command) {
         return true;
     }
     if (parts.at(0) == "printShortestEdges") {
+        if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
 
+        Student tempStudent("", parts.at(1), 0);
+        auto sit = studentList.find(tempStudent);
+        if (sit == studentList.end()) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+        const Student& student = *sit;
+
+        cout << "Name: " << student.getName() << endl;
+
+        vector<Class> classes = student.getClasses();
+        //lexicographical sort as per instructions; lambda because awesome
+        sort(classes.begin(), classes.end(),
+             [](const Class &a, const Class &b) {
+                 return a.getClassCode() < b.getClassCode();
+             });
+
+        for (const auto &c : classes) {
+            int time = graph.shortestPathTime(student.getResidence(), c.getLocationID());
+            cout << c.getClassCode() << " | Total Time: " << time << endl;
+        }
+        return true;
     }
     if (parts.at(0) == "printStudentZone") {
 
