@@ -3,6 +3,7 @@
 //
 #include "Student.h"
 
+//constructor
 Student::Student(const std::string &name, const std::string &id, const int &residence) {
     this->name = name;
     this->id = id;
@@ -10,6 +11,7 @@ Student::Student(const std::string &name, const std::string &id, const int &resi
     classes = std::vector<Class>();
 }
 
+//getters
 [[nodiscard]] std::string Student::getName() const {
     return name;
 }
@@ -23,6 +25,7 @@ Student::Student(const std::string &name, const std::string &id, const int &resi
     return classes;
 }
 
+//setters
 void Student::setName(const std::string &name) {
     this->name = name;
 }
@@ -36,6 +39,7 @@ void Student::setClasses(const std::vector<Class> &classes) {
     this->classes = classes;
 }
 
+//class modifiers
 bool Student::removeClass(const Class &c) {
     for (size_t i = 0; i < classes.size(); i++) {
         if (classes.at(i).getClassCode() == c.getClassCode()) {
@@ -49,6 +53,7 @@ void Student::addClass(const Class &c) {
     this->classes.push_back(c);
 }
 
+//operator overrides
 bool Student::operator<(const Student &other) const {
     return this->id < other.id;
 }

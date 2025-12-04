@@ -11,6 +11,7 @@
 
 using namespace std;
 
+//uses regex to verify 8 numeric characters in sequence
 bool isValidStudentID(const std::string &id) {
     regex id_pattern("^\\d{8}$");
     if (!regex_match(id, id_pattern)) {
@@ -19,6 +20,7 @@ bool isValidStudentID(const std::string &id) {
     return true;
 }
 
+//uses regex to verify 3 uppercase alpha characters followed by 4 numeric characters in sequence
 bool isValidClassCode(const std::string &code) {
     regex id_pattern("^[A-Z]{3}\\d{4}$");
     if (!regex_match(code, id_pattern)) {
@@ -27,11 +29,13 @@ bool isValidClassCode(const std::string &code) {
     return true;
 }
 
+//constructor
 CampusCompass::CampusCompass(): classSet() {
     graph = Graph();
 }
 
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
+    //iterate thru csv and get each edge object
     ifstream edges(edges_filepath);
 
     if (!edges.is_open()) {
@@ -62,6 +66,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     }
     edges.close();
 
+    //iterate thru csv and stores all class objects in a set
     ifstream classes(classes_filepath);
     if (!classes.is_open()) {
         cerr << "File error classes" << endl;
@@ -70,7 +75,6 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
     row.clear();
     line = "";
     element = "";
-    temp = "";
 
     //remove first line with column headers
     getline(classes, line);
@@ -95,14 +99,11 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
 }
 
 bool CampusCompass::ParseCommand(const string &command) {
-    // do whatever regex you need to parse validity
-    // hint: return a boolean for validation when testing. For example:
-    bool is_valid = true; // replace with your actual validity checking
-
     if (command.empty()) {
         return false;
     }
 
+    //splits command into individual parts/ arguments
     vector<string> parts;
     string element;
     stringstream s(command);
@@ -119,7 +120,9 @@ bool CampusCompass::ParseCommand(const string &command) {
         return false;
     }
 
+    //checks first argument of command for which command to run
     if (parts.at(0) == "insert") {
+        //isolate name
         size_t firstQuote = command.find('\"');
         size_t secondQuote = command.find('\"', firstQuote + 1);
         if (firstQuote == string::npos || secondQuote == string::npos) {
@@ -127,18 +130,22 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
         string studentName = command.substr(firstQuote + 1, secondQuote - firstQuote - 1);
+
+        //add remaining arguments into a vector
         stringstream ss(command.substr(secondQuote + 1));
         vector<string> args;
-        string element;
-        while (ss >> element) {
-            args.push_back(element);
+        string remainingArgs;
+        while (ss >> remainingArgs) {
+            args.push_back(remainingArgs);
         }
 
+        //check for command restraints
         if (args.size() < 3 || !isValidStudentID(args[0]) || studentName.empty()) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //check for int validity
         int residence = 0;
         int n = 0;
         try {
@@ -149,34 +156,39 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
+        //check size again
         if (args.size() != static_cast<size_t>(n + 3)) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //iterate thru all class codes inputted and adds
         vector<Class> classesToAdd;
         for (int i = 0; i < n; i++) {
-            string code = args[3 + i];
+            const string& code = args[3 + i];
             if (!isValidClassCode(code)) {
                 cout << "unsuccessful" << endl;
                 return false;
             }
 
+            //locates class in classSet, works because < comparator (used in set) only uses classcode
             Class lookupClass(code, 0, "", "");
-            auto classIt = classSet.find(lookupClass);
-            if (classIt == classSet.end()) {
+            auto cit = classSet.find(lookupClass);
+            if (cit == classSet.end()) {
                 cout << "unsuccessful" << endl;
                 return false;
             }
-            classesToAdd.push_back(*classIt);
+            classesToAdd.push_back(*cit);
         }
 
+        //same lookup strategy
         Student tempStudent("", args[0], 0);
         if (studentList.find(tempStudent) != studentList.end()) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //finally adds student
         Student newStudent(studentName, args[0], residence);
         newStudent.setClasses(classesToAdd);
         studentList.insert(newStudent);
@@ -187,33 +199,38 @@ bool CampusCompass::ParseCommand(const string &command) {
 
 
     if (parts.at(0) == "remove") {
+        //check constraints
         if (!isValidStudentID(parts[1])) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //same lookup strategy
         Student tempStudent("", parts[1], 0);
 
-        auto it = studentList.find(tempStudent);
-        if (it != studentList.end()) {
-            studentList.erase(it);
+        auto sit = studentList.find(tempStudent);
+        if (sit != studentList.end()) {
+            studentList.erase(sit);
             cout << "successful" << endl;
             return true;
-        } else {
-            cout << "unsuccessful" << endl;
-            return false;
         }
+        cout << "unsuccessful" << endl;
+        return false;
     }
+
     if (parts.at(0) == "dropClass") {
+        //check constraints
         if (parts.size() < 3 || !isValidStudentID(parts[1]) || !isValidClassCode(parts[2])) {            cout << "unsuccessful" << endl;
             return false;
         }
 
+        //lookup
         Student tempStudent("", parts[1], 0);
         Class tempClass(parts[2], 0, "", "");
         auto sit = studentList.find(tempStudent);
         if (sit != studentList.end()) {
             Student updatedStudent = *sit;
+            //deletes student from list, only re-adds if they have remaining classes
             studentList.erase(sit);
             if (updatedStudent.removeClass(tempClass)) {
                 if (updatedStudent.getClasses().empty()) {
@@ -229,20 +246,24 @@ bool CampusCompass::ParseCommand(const string &command) {
         cout << "unsuccessful" << endl;
         return false;
     }
+
     if (parts.at(0) == "replaceClass") {
+        //check constraints
         if (parts.size() != 4 || !isValidStudentID(parts.at(1)) || !isValidClassCode(parts.at(2)) || !isValidClassCode(parts.at(3))) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //lookup
         Class classTemp(parts.at(3), 0, "", "");
         auto cit = classSet.find(classTemp);
         if (cit == classSet.end()) {
             cout << "unsuccessful" << endl;
             return false;
         }
-        Class newClass = *cit;
+        const Class& newClass = *cit;
 
+        //lookup
         Student tempStudent("", parts.at(1), 0);
         auto sit = studentList.find(tempStudent);
         if (sit == studentList.end()) {
@@ -252,6 +273,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         Student updatedStudent = *sit;
         studentList.erase(sit);
 
+        //iterate thru student's classes and check if they have the class to be replaced or the one its being replaced with
         vector<Class> currentClasses = updatedStudent.getClasses();
         bool hasOld = false;
         bool hasNew = false;
@@ -265,12 +287,14 @@ bool CampusCompass::ParseCommand(const string &command) {
             }
         }
 
+        //leave as is, reinsert student
         if (!hasOld || hasNew) {
             studentList.insert(updatedStudent);
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //replace class if found
         for (auto & currentClass : currentClasses) {
             if (currentClass.getClassCode() == parts.at(2)) {
                 currentClass = newClass;
@@ -282,6 +306,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         cout << "successful" << endl;
         return true;
     }
+
     if (parts.at(0) == "removeClass") {
         if (parts.size() != 2 || !isValidClassCode(parts.at(1))) {
             cout << "unsuccessful" << endl;
@@ -302,40 +327,47 @@ bool CampusCompass::ParseCommand(const string &command) {
             vector<Class> classes = updated.getClasses();
             bool hadClass = false;
 
-            for (size_t i = 0; i < classes.size(); i++) {
+            //remove class from classes vector of student
+            for (int i = 0; i < classes.size(); i++) {
                 if (classes[i].getClassCode() == parts.at(1)) {
-                    classes.erase(classes.begin() + i);
+                    classes.erase(i + classes.begin());
                     hadClass = true;
                     break;
                 }
             }
+            //if class was there, increment count and determine whether to add back or remove if no classes remain
             if (hadClass) {
                 removedCount++;
 
                 if (classes.empty()) {
                     toRemove.push_back(updated);
-                } else {
+                }
+                else {
                     updated.setClasses(classes);
                     toReinsert.push_back(updated);
                 }
             }
         }
-        for (auto &s : toReinsert) {
-            studentList.erase(s);
-            studentList.insert(s);
+        //reinsert or remove student
+        for (auto &student : toReinsert) {
+            studentList.erase(student);
+            studentList.insert(student);
         }
-        for (auto &s : toRemove) {
-            studentList.erase(s);
+        for (auto &student : toRemove) {
+            studentList.erase(student);
         }
         cout << removedCount << endl;
         return true;
     }
+
+
     if (parts.at(0) == "toggleEdgesClosure") {
         if (parts.size() < 3) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //check int validity
         int n = 0;
         try {
             n = stoi(parts.at(1));
@@ -343,6 +375,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             cout << "unsuccessful" << endl;
             return false;
         }
+        //check size constraint
         if (parts.size() != static_cast<size_t>(2 * n + 2)) {
             cout << "unsuccessful" << endl;
             return false;
@@ -358,12 +391,14 @@ bool CampusCompass::ParseCommand(const string &command) {
         cout << "successful" << endl;
         return true;
     }
+
     if (parts.at(0) == "checkEdgeStatus") {
         if (parts.size() < 3) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //check int validity
         int fromID = 0;
         int toID = 0;
         try {
@@ -374,15 +409,20 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
-        graph.checkEdge(fromID, toID);
-        return true;
+
+        if (graph.checkEdge(fromID, toID)) {
+            return true;
+        }
+        return false;
     }
+
     if (parts.at(0) == "isConnected") {
         if (parts.size() != 3) {
             cout << "unsuccessful" << endl;
             return false;
         }
 
+        //check int validity
         int fromID = 0;
         int toID = 0;
         try {
@@ -393,15 +433,15 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
+        //relies on graph method
         if (graph.isConnected(fromID, toID)) {
             cout << "successful" << endl;
+            return true;
         }
-        else {
-            cout << "unsuccessful" << endl;
-        }
-
-        return true;
+        cout << "unsuccessful" << endl;
+        return false;
     }
+
     if (parts.at(0) == "printShortestEdges") {
         if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
             cout << "unsuccessful" << endl;
@@ -425,6 +465,7 @@ bool CampusCompass::ParseCommand(const string &command) {
                  return a.getClassCode() < b.getClassCode();
              });
 
+        //relies on graph method, applies for each class the student has
         for (const auto &c : classes) {
             int time = graph.shortestPathTime(student.getResidence(), c.getLocationID());
             cout << c.getClassCode() << " | Total Time: " << time << endl;
@@ -432,7 +473,22 @@ bool CampusCompass::ParseCommand(const string &command) {
         return true;
     }
     if (parts.at(0) == "printStudentZone") {
+        if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
 
+        Student tempStudent("", parts.at(1), 0);
+        auto sit = studentList.find(tempStudent);
+        if (sit == studentList.end()) {
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+        const Student& student = *sit;
+
+        //relies on graph function
+        cout << "Student Zone Cost For " << student.getName() << ": ";
+        cout << graph.getStudentZone(student) << endl;
     }
 
     //EC
@@ -440,5 +496,5 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     }
 
-    return is_valid;
+    return false;
 }

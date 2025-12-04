@@ -4,6 +4,7 @@
 #include "Class.h"
 #include <string>
 
+//constructor
 Class::Class(const std::string &cl, const int &location, const std::string &start, const std::string &end) {
     classCode = cl;
     locationID = location;
@@ -11,6 +12,7 @@ Class::Class(const std::string &cl, const int &location, const std::string &star
     endTime = end;
 }
 
+//getters
 [[nodiscard]] std::string Class::getClassCode() const {
     return classCode;
 }
@@ -24,6 +26,7 @@ Class::Class(const std::string &cl, const int &location, const std::string &star
     return endTime;
 }
 
+//setters
 void Class::setClassCode(const std::string &classCode) {
     this->classCode = classCode;
 }
@@ -37,6 +40,7 @@ void Class::setEndTime(const std::string &endTime) {
     this->endTime = endTime;
 }
 
+//operator overrides
 bool Class::operator<(const Class &other) const {
     return classCode < other.getClassCode();
 }

@@ -10,6 +10,7 @@
 #include <climits>
 #include <queue>
 
+//constructor
 Graph::Graph() {
     edge_list = std::vector<Edge>();
 }
@@ -18,6 +19,7 @@ void Graph::insert(const Edge& edge) {
     edge_list.push_back(edge);
 }
 
+//toggles edges in both directions
 bool Graph::toggleEdge(int to, int from) {
     bool done = false;
     for (Edge &edge : edge_list) {
@@ -33,33 +35,31 @@ bool Graph::toggleEdge(int to, int from) {
     return done;
 }
 
-void Graph::checkEdge(int to, int from) {
-    bool done = false;
+//iterate through edges and check if toggled if a match is found
+bool Graph::checkEdge(int to, int from) {
     for (Edge &edge : edge_list) {
         if (edge.getLocation1() == to && edge.getLocation2() == from) {
-            done = true;
             if (edge.isOpen()) {
                 std::cout << "open" << std::endl;
+                return true;
             }
-            else {
-                std::cout << "closed" << std::endl;
-            }
+            std::cout << "closed" << std::endl;
+            return false;
         }
         if (edge.getLocation1() == from && edge.getLocation2() == to) {
-            done = true;
             if (edge.isOpen()) {
                 std::cout << "open" << std::endl;
+                return true;
             }
-            else {
-                std::cout << "closed" << std::endl;
-            }
+            std::cout << "closed" << std::endl;
+            return false;
         }
     }
-    if (!done) {
-        std::cout << "DNE" << std::endl;
-    }
+    std::cout << "DNE" << std::endl;
+    return false;
 }
 
+//performs a slightly modified bfs on the graph, uses edge list
 [[nodiscard]] bool Graph::isConnected(int from, int to) const {
     if (from == to) {
         return true;
@@ -79,6 +79,7 @@ void Graph::checkEdge(int to, int from) {
             return true;
         }
 
+        //iterate over edge list instead of an adj list neighbor iteration
         for (const auto &edge : edge_list) {
             if (!edge.isOpen()) continue;
 
@@ -98,6 +99,7 @@ void Graph::checkEdge(int to, int from) {
     return false;
 }
 
+//performs dijkstra's on the edge-list, iterates through edges to find neighbors
 [[nodiscard]] int Graph::shortestPathTime(int start, int end) const {
     if (start == end) {
         return 0;
@@ -128,6 +130,7 @@ void Graph::checkEdge(int to, int from) {
             return newDistance;
         }
 
+        //iterate through edges and locates neighbors instead of using easy array like an adj list
         for (const auto &edge : edge_list) {
             if (!edge.isOpen()) {
                 continue;
@@ -150,5 +153,10 @@ void Graph::checkEdge(int to, int from) {
         }
     }
 
-    return -1; // unreachable
+    return -1;
 }
+
+[[nodiscard]] int Graph::getStudentZone(const Student& student) const {
+    return 20;
+}
+
