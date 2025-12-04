@@ -14,7 +14,7 @@ public:
     bool toggleEdge(int to, int from);
     void checkEdge(int to, int from);
     [[nodiscard]] bool isConnected(int from, int to) const;
-    [[nodiscard]] int Graph::shortestPathTime(int start, int end) const;
+    [[nodiscard]] int shortestPathTime(int start, int end) const;
 private:
     std::vector<Edge> edge_list;
 };
