@@ -12,9 +12,24 @@
 using namespace std;
 
 //uses regex to verify 8 numeric characters in sequence
-bool isValidStudentID(const std::string &id) {
+[[nodiscard]] bool CampusCompass::isValidStudentID(const std::string &id) const {
     regex id_pattern("^\\d{8}$");
     if (!regex_match(id, id_pattern)) {
+        return false;
+    }
+    //check for unique ID
+    for (const auto& student : studentList) {
+        if (id == student.getID()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+//uses regex to verify name constraints, alpha + spaces
+bool isValidName(const string &name) {
+    regex name_pattern("^[A-Za-z ]+$");
+    if (!regex_match(name, name_pattern)) {
         return false;
     }
     return true;
@@ -22,8 +37,8 @@ bool isValidStudentID(const std::string &id) {
 
 //uses regex to verify 3 uppercase alpha characters followed by 4 numeric characters in sequence
 bool isValidClassCode(const std::string &code) {
-    regex id_pattern("^[A-Z]{3}\\d{4}$");
-    if (!regex_match(code, id_pattern)) {
+    regex code_pattern("^[A-Z]{3}\\d{4}$");
+    if (!regex_match(code, code_pattern)) {
         return false;
     }
     return true;
@@ -140,7 +155,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
 
         //check for command restraints
-        if (args.size() < 3 || !isValidStudentID(args[0]) || studentName.empty()) {
+        if (args.size() < 3 || !isValidStudentID(args[0]) || !isValidName(studentName)) {
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -156,8 +171,8 @@ bool CampusCompass::ParseCommand(const string &command) {
             return false;
         }
 
-        //check size again
-        if (args.size() != static_cast<size_t>(n + 3)) {
+        //check size again, make sure student has 6 or less classes.
+        if (n > 6 || args.size() != static_cast<size_t>(n + 3)) {
             cout << "unsuccessful" << endl;
             return false;
         }

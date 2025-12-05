@@ -14,6 +14,7 @@ private:
     std::set<Class> classSet;
 public:
     CampusCompass();
+    [[nodiscard]] bool isValidStudentID(const std::string &id) const;
     bool ParseCSV(const string &edges_filepath, const string &classes_filepath);
     bool ParseCommand(const string &command);
 };
