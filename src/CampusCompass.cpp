@@ -12,16 +12,10 @@
 using namespace std;
 
 //uses regex to verify 8 numeric characters in sequence
-[[nodiscard]] bool CampusCompass::isValidStudentID(const std::string &id) const {
+bool isValidStudentID(const std::string &id) {
     regex id_pattern("^\\d{8}$");
     if (!regex_match(id, id_pattern)) {
         return false;
-    }
-    //check for unique ID
-    for (const auto& student : studentList) {
-        if (id == student.getID()) {
-            return false;
-        }
     }
     return true;
 }
@@ -45,7 +39,7 @@ bool isValidClassCode(const std::string &code) {
 }
 
 //constructor
-CampusCompass::CampusCompass(): classSet() {
+CampusCompass::CampusCompass() : classSet(), stringRepresentation("") {
     graph = Graph();
 }
 
@@ -131,6 +125,7 @@ bool CampusCompass::ParseCommand(const string &command) {
     }
 
     if (parts.size() < 2) {
+        stringRepresentation.append("unsuccessful");
         cout << "unsuccessful" << endl;
         return false;
     }
@@ -141,6 +136,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         size_t firstQuote = command.find('\"');
         size_t secondQuote = command.find('\"', firstQuote + 1);
         if (firstQuote == string::npos || secondQuote == string::npos) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -156,8 +152,18 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         //check for command restraints
         if (args.size() < 3 || !isValidStudentID(args[0]) || !isValidName(studentName)) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
+        }
+
+        //check for unique ID
+        for (const auto& student : studentList) {
+            if (args[0] == student.getID()) {
+                stringRepresentation.append("unsuccessful");
+                cout << "unsuccessful" << endl;
+                return false;
+            }
         }
 
         //check for int validity
@@ -167,12 +173,14 @@ bool CampusCompass::ParseCommand(const string &command) {
             residence = stoi(args[1]);
             n = stoi(args[2]);
         } catch (...) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
 
         //check size again, make sure student has 6 or less classes.
         if (n > 6 || args.size() != static_cast<size_t>(n + 3)) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -182,6 +190,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         for (int i = 0; i < n; i++) {
             const string& code = args[3 + i];
             if (!isValidClassCode(code)) {
+                stringRepresentation.append("unsuccessful");
                 cout << "unsuccessful" << endl;
                 return false;
             }
@@ -190,6 +199,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             Class lookupClass(code, 0, "", "");
             auto cit = classSet.find(lookupClass);
             if (cit == classSet.end()) {
+                stringRepresentation.append("unsuccessful");
                 cout << "unsuccessful" << endl;
                 return false;
             }
@@ -199,6 +209,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         //same lookup strategy
         Student tempStudent("", args[0], 0);
         if (studentList.find(tempStudent) != studentList.end()) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -208,6 +219,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         newStudent.setClasses(classesToAdd);
         studentList.insert(newStudent);
 
+        stringRepresentation.append("successful");
         cout << "successful" << endl;
         return true;
     }
@@ -216,6 +228,7 @@ bool CampusCompass::ParseCommand(const string &command) {
     if (parts.at(0) == "remove") {
         //check constraints
         if (!isValidStudentID(parts[1])) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -226,16 +239,19 @@ bool CampusCompass::ParseCommand(const string &command) {
         auto sit = studentList.find(tempStudent);
         if (sit != studentList.end()) {
             studentList.erase(sit);
+            stringRepresentation.append("successful");
             cout << "successful" << endl;
             return true;
         }
+        stringRepresentation.append("unsuccessful");
         cout << "unsuccessful" << endl;
         return false;
     }
 
     if (parts.at(0) == "dropClass") {
         //check constraints
-        if (parts.size() < 3 || !isValidStudentID(parts[1]) || !isValidClassCode(parts[2])) {            cout << "unsuccessful" << endl;
+        if (parts.size() < 3 || !isValidStudentID(parts[1]) || !isValidClassCode(parts[2])) {
+            cout << "unsuccessful" << endl;
             return false;
         }
 
@@ -249,15 +265,18 @@ bool CampusCompass::ParseCommand(const string &command) {
             studentList.erase(sit);
             if (updatedStudent.removeClass(tempClass)) {
                 if (updatedStudent.getClasses().empty()) {
+                    stringRepresentation.append("successful");
                     cout << "successful" << endl;
                     return true;
                 }
                 studentList.insert(updatedStudent);
+                stringRepresentation.append("successful");
                 cout << "successful" << endl;
                 return true;
             }
             studentList.insert(updatedStudent);
         }
+        stringRepresentation.append("unsuccessful");
         cout << "unsuccessful" << endl;
         return false;
     }
@@ -265,6 +284,7 @@ bool CampusCompass::ParseCommand(const string &command) {
     if (parts.at(0) == "replaceClass") {
         //check constraints
         if (parts.size() != 4 || !isValidStudentID(parts.at(1)) || !isValidClassCode(parts.at(2)) || !isValidClassCode(parts.at(3))) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -273,6 +293,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         Class classTemp(parts.at(3), 0, "", "");
         auto cit = classSet.find(classTemp);
         if (cit == classSet.end()) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -282,6 +303,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         Student tempStudent("", parts.at(1), 0);
         auto sit = studentList.find(tempStudent);
         if (sit == studentList.end()) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -305,6 +327,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         //leave as is, reinsert student
         if (!hasOld || hasNew) {
             studentList.insert(updatedStudent);
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -318,18 +341,21 @@ bool CampusCompass::ParseCommand(const string &command) {
         }
         updatedStudent.setClasses(currentClasses);
         studentList.insert(updatedStudent);
+        stringRepresentation.append("successful");
         cout << "successful" << endl;
         return true;
     }
 
     if (parts.at(0) == "removeClass") {
         if (parts.size() != 2 || !isValidClassCode(parts.at(1))) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
         Class tempClass(parts.at(1), 0, "", "");
         auto cit = classSet.find(tempClass);
         if (cit == classSet.end()) {
+            stringRepresentation.append("0");
             cout << "0" << endl;
             return true;
         }
@@ -343,7 +369,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             bool hadClass = false;
 
             //remove class from classes vector of student
-            for (int i = 0; i < classes.size(); i++) {
+            for (size_t i = 0; i < classes.size(); i++) {
                 if (classes[i].getClassCode() == parts.at(1)) {
                     classes.erase(i + classes.begin());
                     hadClass = true;
@@ -371,6 +397,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         for (auto &student : toRemove) {
             studentList.erase(student);
         }
+        stringRepresentation.append(std::to_string(removedCount));
         cout << removedCount << endl;
         return true;
     }
@@ -378,6 +405,7 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     if (parts.at(0) == "toggleEdgesClosure") {
         if (parts.size() < 3) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -387,11 +415,13 @@ bool CampusCompass::ParseCommand(const string &command) {
         try {
             n = stoi(parts.at(1));
         } catch (...) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
         //check size constraint
         if (parts.size() != static_cast<size_t>(2 * n + 2)) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -403,12 +433,14 @@ bool CampusCompass::ParseCommand(const string &command) {
             graph.toggleEdge(fromID, toID);
         }
 
+        stringRepresentation.append("successful");
         cout << "successful" << endl;
         return true;
     }
 
     if (parts.at(0) == "checkEdgeStatus") {
         if (parts.size() < 3) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -420,6 +452,7 @@ bool CampusCompass::ParseCommand(const string &command) {
             fromID = stoi(parts.at(1));
             toID = stoi(parts.at(2));
         } catch (...) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -433,6 +466,7 @@ bool CampusCompass::ParseCommand(const string &command) {
 
     if (parts.at(0) == "isConnected") {
         if (parts.size() != 3) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -444,21 +478,25 @@ bool CampusCompass::ParseCommand(const string &command) {
             fromID = stoi(parts.at(1));
             toID = stoi(parts.at(2));
         } catch (...) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
 
         //relies on graph method
         if (graph.isConnected(fromID, toID)) {
+            stringRepresentation.append("successful");
             cout << "successful" << endl;
             return true;
         }
+        stringRepresentation.append("unsuccessful");
         cout << "unsuccessful" << endl;
         return false;
     }
 
     if (parts.at(0) == "printShortestEdges") {
         if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -466,11 +504,13 @@ bool CampusCompass::ParseCommand(const string &command) {
         Student tempStudent("", parts.at(1), 0);
         auto sit = studentList.find(tempStudent);
         if (sit == studentList.end()) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
         const Student& student = *sit;
 
+        stringRepresentation.append("Name: " + student.getName());
         cout << "Name: " << student.getName() << endl;
 
         vector<Class> classes = student.getClasses();
@@ -483,12 +523,15 @@ bool CampusCompass::ParseCommand(const string &command) {
         //relies on graph method, applies for each class the student has
         for (const auto &c : classes) {
             int time = graph.shortestPathTime(student.getResidence(), c.getLocationID());
+            stringRepresentation.append(c.getClassCode() + " | Total Time: ");
+            stringRepresentation.append(to_string(time));
             cout << c.getClassCode() << " | Total Time: " << time << endl;
         }
         return true;
     }
     if (parts.at(0) == "printStudentZone") {
         if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -496,6 +539,7 @@ bool CampusCompass::ParseCommand(const string &command) {
         Student tempStudent("", parts.at(1), 0);
         auto sit = studentList.find(tempStudent);
         if (sit == studentList.end()) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
@@ -503,13 +547,18 @@ bool CampusCompass::ParseCommand(const string &command) {
 
         //relies on graph function
         cout << "Student Zone Cost For " << student.getName() << ": ";
+        stringRepresentation.append("Student Zone Cost For " + student.getName() + ": ");
         cout << graph.getStudentZone(student) << endl;
+        stringRepresentation.append(std::to_string(graph.getStudentZone(student)));
+        return true;
     }
 
-    //EC
-    if (parts.at(0) == "verifySchedule") {
-
-    }
-
+    stringRepresentation.append("unsuccessful");
+    cout << "unsuccessful" << endl;
     return false;
 }
+
+std::string CampusCompass::getStringRepresentation() {
+    return stringRepresentation;
+};
+

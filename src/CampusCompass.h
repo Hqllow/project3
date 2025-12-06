@@ -12,9 +12,10 @@ private:
     Graph graph;
     std::set<Student> studentList;
     std::set<Class> classSet;
+    std::string stringRepresentation;
 public:
     CampusCompass();
-    [[nodiscard]] bool isValidStudentID(const std::string &id) const;
     bool ParseCSV(const string &edges_filepath, const string &classes_filepath);
     bool ParseCommand(const string &command);
+    std::string getStringRepresentation();
 };

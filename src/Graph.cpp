@@ -4,6 +4,7 @@
 
 #include "Graph.h"
 
+#include <algorithm>
 #include <iostream>
 #include <unordered_set>
 #include <unordered_map>
@@ -156,7 +157,97 @@ bool Graph::checkEdge(int to, int from) {
     return -1;
 }
 
-[[nodiscard]] int Graph::getStudentZone(const Student& student) const {
-    return 20;
-}
+[[nodiscard]] int Graph::getStudentZone(const Student &student) const {
+    int start = student.getResidence();
+    std::vector<Class> classes = student.getClasses();
 
+    //collect all class locations and put in vector
+    std::vector<int> vertices;
+    vertices.push_back(start);
+    for (const auto &c : classes) {
+        vertices.push_back(c.getLocationID());
+    }
+
+    //puts only unique locations in vertices, as some classes share the same location
+    std::vector<int> uniqueVertices;
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        bool alreadyExists = false;
+        for (size_t j = 0; j < uniqueVertices.size(); ++j) {
+            if (vertices[i] == uniqueVertices[j]) {
+                alreadyExists = true;
+                break;
+            }
+        }
+        if (!alreadyExists) {
+            uniqueVertices.push_back(vertices[i]);
+        }
+    }
+
+    vertices = uniqueVertices;
+
+    //compiles all edges into a list so we can do kruskal's, stored as location1, location2, distance
+    std::vector<std::tuple<int,int,int>> edges;
+
+    //create subgraph stage, compiles all into edges vector if a path exists, check for path using dijkstra's function from earlier
+    for (size_t i = 0; i < vertices.size(); i++) {
+        for (size_t j = i + 1; j < vertices.size(); j++) {
+            int u = vertices[i];
+            int v = vertices[j];
+            int dist = shortestPathTime(u, v);
+            if (dist != -1) {
+                edges.emplace_back(u, v, dist);
+            }
+        }
+    }
+
+    //no connections check (bad)
+    if (edges.empty()) {
+        return -1;
+    }
+
+    //set each vertex to own parent
+    std::unordered_map<int, int> parent;
+    for (int v : vertices) {
+        parent[v] = v;
+    }
+
+    //lambda because awesome
+    auto find = [&](int x) {
+        while (parent[x] != x) {
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    };
+
+    //lambda because awesome #2 electric boogaloo
+    auto unite = [&](int a, int b) {
+        int parentA = find(a), parentB = find(b);
+        if (parentA != parentB) parent[parentB] = parentA;
+    };
+
+    //lambda because awesome x3
+    //sort with inline lambda comparison, sets up kruskals as we iterate over sorted vector in which smallest edges are first
+    std::sort(edges.begin(), edges.end(),
+              [](const auto &a, const auto &b) {
+                  return std::get<2>(a) < std::get<2>(b);
+              });
+
+    //combine edge disjoint sets for all edges, (kruskal's since smallest first)
+    int totalCost = 0;
+    int edgeCount = 0;
+    for (const auto &[u, v, w] : edges) {
+        //cycle check
+        if (find(u) != find(v)) {
+            unite(u, v);
+            totalCost += w;
+            edgeCount++;
+        }
+    }
+
+    //check for valid MST, should always be n - 1 edges
+    if (edgeCount == static_cast<int>(vertices.size()) - 1) {
+        return totalCost;
+    }
+    return -1;
+}
