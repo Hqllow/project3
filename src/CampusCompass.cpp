@@ -251,6 +251,7 @@ bool CampusCompass::ParseCommand(const string &command) {
     if (parts.at(0) == "dropClass") {
         //check constraints
         if (parts.size() < 3 || !isValidStudentID(parts[1]) || !isValidClassCode(parts[2])) {
+            stringRepresentation.append("unsuccessful");
             cout << "unsuccessful" << endl;
             return false;
         }
