@@ -554,6 +554,59 @@ bool CampusCompass::ParseCommand(const string &command) {
         return true;
     }
 
+    if (parts.at(0) == "verifySchedule") {
+        //constraints check
+        if (parts.size() != 2 || !isValidStudentID(parts.at(1))) {
+            stringRepresentation.append("unsuccessful");
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+
+        //lookup student and get classes
+        Student tempStudent("", parts.at(1), 0);
+        auto sit = studentList.find(tempStudent);
+        if (sit == studentList.end()) {
+            stringRepresentation.append("unsuccessful");
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+        const Student& student = *sit;
+        std::vector<Class> classes = student.getClasses();
+
+        if (classes.size() == 1) {
+            stringRepresentation.append("unsuccessful");
+            cout << "unsuccessful" << endl;
+            return false;
+        }
+
+        //sorts into ascending order for start times; earliest first
+        sort(classes.begin(), classes.end(),
+            [](const Class &a, const Class &b) {
+                return a.getStartTime() < b.getStartTime();
+            });
+
+        cout << "Schedule Check for " << student.getName() << ":" << endl;
+        for (size_t i = 0; i < classes.size() - 1; i++) {
+            cout << classes.at(i).getClassCode() << " - " << classes.at(i + 1).getClassCode() << " ";
+            int timeDiff = 0;
+            int classAHr = stoi(classes.at(i).getEndTime().substr(0, 2));
+            int classAMin = stoi(classes.at(i).getEndTime().substr(3, 2));
+            int classBHr = stoi(classes.at(i + 1).getStartTime().substr(0, 2));
+            int classBMin = stoi(classes.at(i + 1).getStartTime().substr(3, 2));
+
+            timeDiff = (classBHr * 60 + classBMin) - (classAHr * 60 + classAMin);
+            int distance = graph.shortestPathTime(classes.at(i).getLocationID(), classes.at(i + 1).getLocationID());
+
+            if (distance == -1 || timeDiff < distance) {
+                cout << "\"Cannot make it!\"" << endl;
+            }
+            else {
+                cout << "\"Can make it!\"" << endl;
+            }
+        }
+        return true;
+    }
+
     stringRepresentation.append("unsuccessful");
     cout << "unsuccessful" << endl;
     return false;
